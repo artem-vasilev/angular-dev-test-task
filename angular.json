@@ -52,7 +52,7 @@
 						"tsConfig": "apps/line-chart/tsconfig.app.json",
 						"aot": true,
 						"assets": ["apps/line-chart/src/favicon.ico", "apps/line-chart/src/assets"],
-						"styles": ["apps/line-chart/src/styles.scss"],
+						"styles": ["apps/line-chart/src/styles.scss", "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"],
 						"scripts": []
 					},
 					"configurations": {
@@ -166,6 +166,50 @@
 					"builder": "@nrwl/linter:eslint",
 					"options": {
 						"lintFilePatterns": ["libs/shared/models/src/**/*.ts", "libs/shared/models/src/**/*.html"]
+					}
+				}
+			}
+		},
+		"feature-chart": {
+			"projectType": "library",
+			"root": "libs/feature/chart",
+			"sourceRoot": "libs/feature/chart/src",
+			"prefix": "bp",
+			"architect": {
+				"lint": {
+					"builder": "@nrwl/linter:eslint",
+					"options": {
+						"lintFilePatterns": ["libs/feature/chart/src/**/*.ts", "libs/feature/chart/src/**/*.html"]
+					}
+				},
+				"test": {
+					"builder": "@nrwl/jest:jest",
+					"outputs": ["coverage/libs/feature/chart"],
+					"options": {
+						"jestConfig": "libs/feature/chart/jest.config.js",
+						"passWithNoTests": true
+					}
+				}
+			}
+		},
+		"core": {
+			"projectType": "library",
+			"root": "libs/core",
+			"sourceRoot": "libs/core/src",
+			"prefix": "bp",
+			"architect": {
+				"lint": {
+					"builder": "@nrwl/linter:eslint",
+					"options": {
+						"lintFilePatterns": ["libs/core/src/**/*.ts", "libs/core/src/**/*.html"]
+					}
+				},
+				"test": {
+					"builder": "@nrwl/jest:jest",
+					"outputs": ["coverage/libs/core"],
+					"options": {
+						"jestConfig": "libs/core/jest.config.js",
+						"passWithNoTests": true
 					}
 				}
 			}

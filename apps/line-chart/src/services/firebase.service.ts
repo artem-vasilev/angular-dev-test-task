@@ -1,25 +1,25 @@
-import firebase from 'firebase/app';
-
 import { Injectable } from '@angular/core';
 
-// Firebase App (the core Firebase SDK) is always required and must be listed first
+import type { CryptoCurrencyCode } from '@bp/shared-models';
+// @ts-ignore
+import { TURN_ON_REALTIME_CRYPTO_CURRENCY_PRICES_FB_FN, CRYPTO_CURRENCIES_PRICES_COLLECTION_NAME } from '@bp/shared-models';
+import firebase from 'firebase/app';
 
+// Firebase App (the core Firebase SDK) is always required and must be listed first
 import 'firebase/firestore';
 import 'firebase/functions';
 
-import type { CryptoCurrencyCode } from '@bp/shared-models';
-import { CRYPTO_CURRENCIES_PRICES_COLLECTION_NAME, TURN_ON_REALTIME_CRYPTO_CURRENCY_PRICES_FB_FN } from '@bp/shared-models';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class FirebaseService {
 
-	protected get _firestore(): firebase.firestore.Firestore {
+	get firestore(): firebase.firestore.Firestore {
 		return firebase.firestore();
 	}
 
-	protected get _functions(): firebase.functions.Functions {
+	protected get functions(): firebase.functions.Functions {
 		return firebase.functions();
 	}
 
@@ -32,23 +32,24 @@ export class FirebaseService {
 			messagingSenderId: '978693463659',
 			appId: '1:978693463659:web:7aa38253892da9c0b15b2e',
 		});
-
-		// Example
-		this._firestore.collection(`${ CRYPTO_CURRENCIES_PRICES_COLLECTION_NAME }/BTC/prices`).onSnapshot({
-			next(snapshot) {
-				console.warn(snapshot.docChanges().map(change => ({
-					 timestamp: change.doc.id,
-					...change.doc.data(),
-				})));
-			},
-		});
-
-		// Example
-		setTimeout(() => void this.turnOnRealtimeCryptoCurrencyPrices('BTC'), 2000);
 	}
 
-	turnOnRealtimeCryptoCurrencyPrices(cryptoCurrencyCode: CryptoCurrencyCode): void {
-		void this._functions
+	getRecords(currency: CryptoCurrencyCode, limit: number) {
+		return this.firestore
+			.collection(`${ CRYPTO_CURRENCIES_PRICES_COLLECTION_NAME }/${currency}/prices`)
+			.orderBy('timestamp', 'desc')
+			.limitToLast(limit)
+			.get()
+			.then((snapshot) => {
+				return snapshot.docChanges().map((change) => ({
+					x: +change.doc.id,
+					y: +change.doc.data().price,
+				})).reverse();
+			})
+	}
+
+	async turnOnRealtimeCryptoCurrencyPrices(cryptoCurrencyCode: CryptoCurrencyCode): Promise<any> {
+		return await this.functions
 			.httpsCallable(<string>TURN_ON_REALTIME_CRYPTO_CURRENCY_PRICES_FB_FN)({ cryptoCurrencyCode });
 	}
 
